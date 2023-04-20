@@ -144,7 +144,7 @@ def count_files_per_package(contents: str) -> dict[str, int]:
 #
 # Note: if K is constant and K << N, e.g., K = 10, then this essentially runs
 # in O(N) time.
-def print_top_packages(stats: dict[str, int]) -> None:
+def print_top_packages(stats: dict[str, int], top_k: int = 10) -> None:
   # Create a tuple list from the given dictionary, in order to create a heap.
   # Since `heapify` creates a min heap, use the negative values of file counts
   # so that we end up with an equivalent max heap.
@@ -155,7 +155,7 @@ def print_top_packages(stats: dict[str, int]) -> None:
   heapq.heapify(tuplist)
 
   # Print the top K packages in O(K*log(N)) time.
-  for i in range(1, 10):
+  for i in range(1, top_k):
     if len(tuplist) == 0:
       break
 
