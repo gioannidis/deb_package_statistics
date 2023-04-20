@@ -32,3 +32,13 @@ You can use the following Debian mirror:
 http://ftp.uk.debian.org/debian/dists/stable/main/. Please try to follow
 Python's best practices in your solution. Hint: there are tools that can help
 you verify your code is compliant. In-line comments are appreciated.
+
+## Development Tools
+
+Development tools that were used for this project include:
+
+- The [Pyink][pyink] auto-formatter.
+- The [Pylint][pylint] static code analyzer.
+
+[pyink]: https://github.com/google/pyink
+[pylint]: https://pypi.org/project/pylint
