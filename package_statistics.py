@@ -104,13 +104,53 @@ def decompress_gz(filepath: str) -> str:
     return f.read()
 
 
-# Gets the package from a contents line
-def get_package(line: str) -> str:
-  # Find the last space in the line and return the suffix. We use this
+# Finds the last occurrence of any one of the characters in `chars` within
+# `text` and returns its index. Returns -1 if no matches are found.
+def find_last_of(text: str, chars: str) -> int:
+  # Create a dictionary from the characters that we are looking to match.
+  char_dict = dict.fromkeys(chars)
+
+  # Define the predicate to filter for matching characters.
+  def predicate(char: str) -> bool:
+    return char in char_dict
+
+  # Reverse the string, so that we find the last occurrence.
+  text = text[::-1]
+
+  # Find the first occurrence in the reversed text and return -1 if not found.
+  index = next((i for i, ch in enumerate(text) if predicate(ch)), None)
+
+  # Handle case where no match is found.
+  if index is None:
+    return -1
+
+  # Return the index corresponding to the original string, i.e., the last
+  # matching index.
+  return len(text) - index - 1
+
+
+# Gets the package list from a contents line.
+def get_packages(line: str) -> list[str]:
+  # Reminder: each line in the contents file has the following format:
+  #     file_name [multiple spaces] package_1,package_2,package_3,...,package_N
+  #
+  # File names may contain spaces. The package list, which is a list of packages
+  # separated by commas, is guaranteed to contain no spaces.
+
+  # Find the last space or tab in the line and return the suffix. We use this
   # approach because file names may contain spaces, thus breaking the
   # standard split() method.
-  last_space_index = line.rfind(" ")
-  return line[last_space_index + 1 :]
+  last_space_index = find_last_of(line, " \t")
+
+  # Handle malformed lines, where there is no 2nd column.
+  if last_space_index < 0:
+    raise ValueError(f"Malformed line in Contents file: {line}")
+
+  # Isolate the package list.
+  packages = line[last_space_index + 1 :]
+
+  # Tokenize the line by commas, which separate packages.
+  return packages.split(",")
 
 
 # Returns a dictionary where the key represents a package and the value
@@ -122,15 +162,17 @@ def count_files_per_package(contents: str) -> dict[str, int]:
   # Split the file into lines, where each line represents a package.
   lines = contents.splitlines()
 
-  # Process each package.
+  # Process each line, updating the file counts for each package associated with
+  # each file.
   for line in lines:
-    package = get_package(line)
+    packages = get_packages(line)
 
     # Increment the file counter of this package.
-    if package in file_count:
-      file_count[package] = file_count[package] + 1
-    else:
-      file_count[package] = 1
+    for package in packages:
+      if package in file_count:
+        file_count[package] = file_count[package] + 1
+      else:
+        file_count[package] = 1
 
   return file_count
 
@@ -147,7 +189,7 @@ def count_files_per_package(contents: str) -> dict[str, int]:
 #
 # Note: if K is constant and K << N, e.g., K = 10, then this essentially runs
 # in O(N) time.
-def print_top_packages(stats: dict[str, int], top_k: int|None = 10) -> None:
+def print_top_packages(stats: dict[str, int], top_k: int | None = 10) -> None:
   # Create a tuple list from the given dictionary, in order to create a heap.
   # Since `heapify` creates a min heap, use the negative values of file counts
   # so that we end up with an equivalent max heap.
@@ -159,7 +201,7 @@ def print_top_packages(stats: dict[str, int], top_k: int|None = 10) -> None:
 
   # Print all packages if no K has been specified.
   if top_k is None:
-      top_k = len(tuplist)
+    top_k = len(tuplist)
 
   # Print the top K packages in O(K*log(N)) time.
   for i in range(1, top_k):
