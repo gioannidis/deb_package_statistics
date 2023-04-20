@@ -49,18 +49,36 @@ ARCHITECTURES = dict.fromkeys([
 DEBIAN_MIRROR = "http://ftp.uk.debian.org/debian/dists/stable/main/"
 
 
-# Produces an error message in case the architecture argument is missing.
-def missing_architecture_error() -> str:
+# Produces a generic usage message.
+def usage_message() -> str:
   return (
-      "Missing architecture argument.\n"
       f"Usage: {sys.argv[0]} ARCHITECTURE\n\n"
       f"Supported architectures: {' '.join(ARCHITECTURES)}"
   )
 
 
+# Produces an error message in case the architecture argument is missing.
+def missing_architecture_error() -> str:
+  return "Missing architecture argument.\n" + usage_message()
+
+
+# Produces an error message in case of an invalid or unsupported architecture.
+def invalid_architecture_error(architecture: str) -> str:
+  return (
+      f"Invalid or unsupported architecture: {architecture}\n" + usage_message()
+  )
+
+
 def main() -> None:
-  if len(sys.argv) != 2:
+  # Require that we have at least one ARCHITECTURE argument.
+  # Note: excessive arguments are allowed, but ignored.
+  if len(sys.argv) < 2:
     raise ValueError(missing_architecture_error())
+
+  # Check whether the argument represents a valid architecture.
+  architecture = sys.argv[1]
+  if architecture not in ARCHITECTURES:
+    raise ValueError(invalid_architecture_error(architecture))
 
 
 if __name__ == "__main__":
