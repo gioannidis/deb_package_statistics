@@ -139,12 +139,15 @@ def count_files_per_package(contents: str) -> dict[str, int]:
 # each package is associated with. Each dictionary represents a {k, v} value,
 # where k = package name, v = number of files the package is associated with.
 #
+# If `K` is `None`, then all packages are printed, sorted by descending order
+# based on their associated file counts.
+#
 # Time Complexity: O(N + K*log(N)) where N = number of packages.
 # Space Complexity: O(N) for auxilliary memory.
 #
 # Note: if K is constant and K << N, e.g., K = 10, then this essentially runs
 # in O(N) time.
-def print_top_packages(stats: dict[str, int], top_k: int = 10) -> None:
+def print_top_packages(stats: dict[str, int], top_k: int|None = 10) -> None:
   # Create a tuple list from the given dictionary, in order to create a heap.
   # Since `heapify` creates a min heap, use the negative values of file counts
   # so that we end up with an equivalent max heap.
@@ -153,6 +156,10 @@ def print_top_packages(stats: dict[str, int], top_k: int = 10) -> None:
   # Make a max heap out of the tuples based on the number of files associated
   # with each package. This takes O(N) time, where N = number of packages.
   heapq.heapify(tuplist)
+
+  # Print all packages if no K has been specified.
+  if top_k is None:
+      top_k = len(tuplist)
 
   # Print the top K packages in O(K*log(N)) time.
   for i in range(1, top_k):
