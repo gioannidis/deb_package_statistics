@@ -17,7 +17,7 @@
 """
 Displays deb package statistics for various architectures.
 """
-
+import gzip
 import os
 import requests
 import sys
@@ -97,6 +97,43 @@ def maybe_download_contents(architecture: str) -> str:
   return filepath
 
 
+# Decompresses a .gz file and returns its contents as a string
+def decompress_gz(filepath: str) -> str:
+  with gzip.open(filepath, "rt") as f:
+    return f.read()
+
+
+# Gets the package from a contents line
+def get_package(line: str) -> str:
+  # Find the last space in the line and return the suffix. We use this
+  # approach because file names may contain spaces, thus breaking the
+  # standard split() method.
+  last_space_index = line.rfind(" ")
+  return line[last_space_index + 1 :]
+
+
+# Returns a dictionary where the key represents a package and the value
+# represents the number of files associated with this package.
+# Input: the decompressed contents file.
+def count_files_per_package(contents: str) -> dict[str, int]:
+  file_count = {}
+
+  # Split the file into lines, where each line represents a package.
+  lines = contents.splitlines()
+
+  # Process each package.
+  for line in lines:
+    package = get_package(line)
+
+    # Increment the file counter of this package.
+    if package in file_count:
+      file_count[package] = file_count[package] + 1
+    else:
+      file_count[package] = 1
+
+  return file_count
+
+
 def main() -> None:
   # Require that we have at least one ARCHITECTURE argument.
   # Note: excessive arguments are allowed, but ignored.
@@ -109,6 +146,12 @@ def main() -> None:
     raise ValueError(invalid_architecture_error(architecture))
 
   filepath = maybe_download_contents(architecture)
+  contents = decompress_gz(filepath)
+
+  file_count = count_files_per_package(contents)
+
+  for package, count in file_count.items():
+    print(package, ":", count)
 
 
 if __name__ == "__main__":
