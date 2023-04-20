@@ -17,6 +17,7 @@
 """
 Displays deb package statistics for various architectures.
 """
+import heapq
 import gzip
 import os
 import requests
@@ -134,6 +135,37 @@ def count_files_per_package(contents: str) -> dict[str, int]:
   return file_count
 
 
+# Prints the top K packages from the `stats` dictionary, based on how many files
+# each package is associated with. Each dictionary represents a {k, v} value,
+# where k = package name, v = number of files the package is associated with.
+#
+# Time Complexity: O(N + K*log(N)) where N = number of packages.
+# Space Complexity: O(N) for auxilliary memory.
+#
+# Note: if K is constant and K << N, e.g., K = 10, then this essentially runs
+# in O(N) time.
+def print_top_packages(stats: dict[str, int]) -> None:
+  # Create a tuple list from the given dictionary, in order to create a heap.
+  # Since `heapify` creates a min heap, use the negative values of file counts
+  # so that we end up with an equivalent max heap.
+  tuplist = [(-v, k) for k, v in stats.items()]
+
+  # Make a max heap out of the tuples based on the number of files associated
+  # with each package. This takes O(N) time, where N = number of packages.
+  heapq.heapify(tuplist)
+
+  # Print the top K packages in O(K*log(N)) time.
+  for i in range(1, 10):
+    if len(tuplist) == 0:
+      break
+
+    # Remove the top element in O(log(N)) time and print it.
+    top = heapq.heappop(tuplist)
+    package = top[1]
+    count = abs(top[0])
+    print(f"{package} : {count}")
+
+
 def main() -> None:
   # Require that we have at least one ARCHITECTURE argument.
   # Note: excessive arguments are allowed, but ignored.
@@ -150,8 +182,7 @@ def main() -> None:
 
   file_count = count_files_per_package(contents)
 
-  for package, count in file_count.items():
-    print(package, ":", count)
+  print_top_packages(file_count)
 
 
 if __name__ == "__main__":
