@@ -18,6 +18,8 @@
 Displays deb package statistics for various architectures.
 """
 
+import os
+import requests
 import sys
 
 # Defines the supported architectures.
@@ -48,6 +50,9 @@ ARCHITECTURES = dict.fromkeys([
 # Defines the debian mirror to use.
 DEBIAN_MIRROR = "http://ftp.uk.debian.org/debian/dists/stable/main/"
 
+# Defines the folder to store the downloaded files.
+DOWNLOADS_FOLDER = "./downloads/"
+
 
 # Produces a generic usage message.
 def usage_message() -> str:
@@ -69,6 +74,29 @@ def invalid_architecture_error(architecture: str) -> str:
   )
 
 
+# Downloads the contents file for the given architecture, unless it has been
+# already downloaded, and returns the filepath of the downloaded file.
+def maybe_download_contents(architecture: str) -> str:
+  # Create the downloads folder if it doesn't exist.
+  if not os.path.isdir(DOWNLOADS_FOLDER):
+    os.makedirs(DOWNLOADS_FOLDER)
+
+  filename = f"Contents-{architecture}.gz"
+  filepath = f"{DOWNLOADS_FOLDER}/{filename}"
+
+  # Skip downloading the file if it already exists.
+  if os.path.isfile(filepath):
+    return filepath
+
+  # Download as a stream and save it to persistent storage.
+  url = f"{DEBIAN_MIRROR}/{filename}"
+  response = requests.get(url, stream=True, timeout=60)
+  with open(filepath, "wb") as f:
+    f.write(response.raw.read())
+
+  return filepath
+
+
 def main() -> None:
   # Require that we have at least one ARCHITECTURE argument.
   # Note: excessive arguments are allowed, but ignored.
@@ -79,6 +107,8 @@ def main() -> None:
   architecture = sys.argv[1]
   if architecture not in ARCHITECTURES:
     raise ValueError(invalid_architecture_error(architecture))
+
+  filepath = maybe_download_contents(architecture)
 
 
 if __name__ == "__main__":
