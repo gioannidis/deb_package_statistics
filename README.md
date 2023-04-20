@@ -40,5 +40,19 @@ Development tools that were used for this project include:
 - The [Pyink][pyink] auto-formatter.
 - The [Pylint][pylint] static code analyzer.
 
+## Allocated Time
+
+About 9 hours were allocated to this project in its entirety. This allocated
+time was used to:
+
+- Gather requirements, reach out to the company for clarifications, and make
+  assumptions.
+- Conduct research on the style guide to follow and decide on the most suitable
+  auto-formatter and the static code analyzer.
+- Read and understand the [contents file format][contents] and design the
+  core functionality of the tool.
+- Optimize the time complexity to find the top `K` packages.
+
+[contents]: https://wiki.debian.org/RepositoryFormat#A.22Contents.22_indices
 [pyink]: https://github.com/google/pyink
 [pylint]: https://pypi.org/project/pylint
