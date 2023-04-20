@@ -16,7 +16,7 @@
 
 [tool.pyink]
 pyink = true
-pyink-indentation = 2
+pyink-indentation = 4
 line-length = 80
 
 [project]
