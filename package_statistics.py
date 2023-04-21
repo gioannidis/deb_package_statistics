@@ -112,7 +112,7 @@ class PackageStatistics:
         contents = decompress_gz(filepath)
 
         file_count = self._count_files_per_package(contents)
-        self._print_top_packages(file_count)
+        self._print_top_packages(file_count, top_k)
 
     def _maybe_download_contents(self, architecture: str) -> str:
         """Downloads the contents file a debian architecture.
@@ -187,21 +187,28 @@ class PackageStatistics:
     def _count_files_per_package(self, contents: str) -> dict[str, int]:
         """Counts the files associated with each package in a Contents file.
 
-        Returns a dictionary where the key represents a package and the value
-        represents the number of files associated with this package.
-        Input: the decompressed contents file.
+        Processes a decompressed Contents file stored in memory and computes
+        the number of files that each package is associated with. Each line in
+        the file represents a single file that can be associated with multiple
+        packages. The contents are tokenized by lines and each line is processed
+        separtely.
+
+        Args:
+            contents: A string representing the decompressed contents file.
+
+        Returns:
+            A (key, value) dictionary where:
+                key: A string representing a package.
+                value: An integer representing the number of files associated
+                    with the package.
         """
         file_count = {}
-
-        # Split the file into lines, where each line represents a package.
         lines = contents.splitlines()
 
-        # Process each line, updating the file counts for each package associated with
-        # each file.
+        # Retrieve the package list that each file (line) is associated with and
+        # increment the counter of each associated package.
         for line in lines:
             packages = self._get_packages(line)
-
-            # Increment the file counter of this package.
             for package in packages:
                 if package in file_count:
                     file_count[package] = file_count[package] + 1
@@ -211,41 +218,61 @@ class PackageStatistics:
         return file_count
 
     def _print_top_packages(
-        self, stats: dict[str, int], top_k: int | None = 10
+        self, stats: dict[str, int], top_k: int | None
     ) -> None:
-        """
-        Prints the top K packages from the `stats` dictionary, based on how many files
-        each package is associated with. Each dictionary represents a {k, v} value,
-        where k = package name, v = number of files the package is associated with.
+        """Finds the packages that have the most files associated with them.
 
-        If `K` is `None`, then all packages are printed, sorted by descending order
-        based on their associated file counts.
+        Processes a dictionary mapping each package to the number of files
+        associated with it, performs a partial sort of this dictionary based on
+        how many file each package is associated with, and returns the top K
+        packages based on the number of files associated with them.
 
-        Time Complexity: O(N + K*log(N)) where N = number of packages.
+        The partial sort is implemented by creating a heap from the dictionary
+        in linear time and then extracting the top K elements.
+
+        Time Complexity: O(N + K*log(N)), where:
+            N = number of packages, i.e., the size of the `stats` dictionary
+            K = the `top_k` argument. If K is None or K > N, then K = N.
         Space Complexity: O(N) for auxilliary memory.
 
-        Note: if K is constant and K << N, e.g., K = 10, then this essentially runs
-        in O(N) time.
+        Note: if K is constant and K << N, e.g., K = 10, then this method runs
+        essentially in O(N) time.
+
+        Args:
+            stats: A dictionary mapping a string to an integer.
+                key: A string representing a package.
+                value: An integer representing the number of files associated
+                    with the package.
+
+            top_k: An integer or None. If set, it limits the number of the top
+                K packages to be retrieved. If None, all packages are returned.
+
+        Returns:
+            A list of (str, int) tuples, where the first element is a string
+            representing a package and the second element is an integer
+            representing the number of files associated with the package. The
+            tuples are sorted in descending order by the number of associated
+            files, i.e., their second element.
         """
-        # Create a tuple list from the given dictionary, in order to create a heap.
-        # Since `heapify` creates a min heap, use the negative values of file counts
-        # so that we end up with an equivalent max heap.
+        # Create a tuple list that will be used as the max heap elements. Place
+        # the dictionary value as the first element so that the heap uses this
+        # value as the sorting criterion.
+        # NOTE: since `heapify` creates a min heap, we use the negative values
+        # of file counts so that we end up with an equivalent max heap.
         tuplist = [(-v, k) for k, v in stats.items()]
 
-        # Make a max heap out of the tuples based on the number of files associated
-        # with each package. This takes O(N) time, where N = number of packages.
         heapq.heapify(tuplist)
 
-        # Print all packages if no K has been specified.
+        # Handle the case when `top_k` has not been set. This results in
+        # returning all packages.
         if top_k is None:
             top_k = len(tuplist)
 
-        # Print the top K packages in O(K*log(N)) time.
+        # Extract the top K packages in O(K*log(N)) time.
         for i in range(1, top_k):
             if len(tuplist) == 0:
                 break
 
-            # Remove the top element in O(log(N)) time and print it.
             top = heapq.heappop(tuplist)
             package = top[1]
             count = abs(top[0])
