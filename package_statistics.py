@@ -77,6 +77,7 @@ def invalid_architecture_error(architecture: str) -> str:
         + usage_message()
     )
 
+
 # Decompresses a .gz file and returns its contents as a string
 def decompress_gz(filepath: str) -> str:
     with gzip.open(filepath, "rt") as f:
@@ -104,8 +105,9 @@ class PackageStatistics:
         """
         self._mirror = mirror
 
-    def get_top_packages(self, architecture: str, top_k: int|None = None) -> None:
-
+    def get_top_packages(
+        self, architecture: str, top_k: int | None = None
+    ) -> None:
         filepath = self._maybe_download_contents(architecture)
         contents = decompress_gz(filepath)
 
@@ -151,7 +153,6 @@ class PackageStatistics:
 
         return filepath
 
-
     def _get_packages(self, line: str) -> list[str]:
         """Parses a row from a Contents file and retrieves a list of packages.
 
@@ -183,7 +184,6 @@ class PackageStatistics:
         packages = line[last_space_index + 1 :]
         return packages.split(",")
 
-
     def _count_files_per_package(self, contents: str) -> dict[str, int]:
         """Counts the files associated with each package in a Contents file.
 
@@ -210,8 +210,9 @@ class PackageStatistics:
 
         return file_count
 
-
-    def _print_top_packages(self, stats: dict[str, int], top_k: int | None = 10) -> None:
+    def _print_top_packages(
+        self, stats: dict[str, int], top_k: int | None = 10
+    ) -> None:
         """
         Prints the top K packages from the `stats` dictionary, based on how many files
         each package is associated with. Each dictionary represents a {k, v} value,
@@ -261,7 +262,6 @@ def main() -> None:
     architecture = sys.argv[1]
     if architecture not in ARCHITECTURES:
         raise ValueError(invalid_architecture_error(architecture))
-
 
     stats = PackageStatistics(DEBIAN_MIRROR)
     stats.get_top_packages(architecture, 10)
