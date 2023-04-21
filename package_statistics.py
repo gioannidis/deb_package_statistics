@@ -53,9 +53,11 @@ ARCHITECTURES = dict.fromkeys([
 # Defines the debian mirror to use.
 DEBIAN_MIRROR = "http://ftp.uk.debian.org/debian/dists/stable/main/"
 
+DEFAULT_TOP_K_PACKAGES = 10
+"""Defines the top K packages to be retrieved when executing the main()"""
+
 # Defines the folder to store the downloaded files.
 DOWNLOADS_FOLDER = "./downloads/"
-
 
 def usage_message() -> str:
     """Produces a generic usage message for this script."""
@@ -107,12 +109,12 @@ class PackageStatistics:
 
     def get_top_packages(
         self, architecture: str, top_k: int | None = None
-    ) -> None:
+    ) -> list[tuple[str, int]]:
         filepath = self._maybe_download_contents(architecture)
         contents = decompress_gz(filepath)
 
         file_count = self._count_files_per_package(contents)
-        self._print_top_packages(file_count, top_k)
+        return self._find_top_packages(file_count, top_k)
 
     def _maybe_download_contents(self, architecture: str) -> str:
         """Downloads the contents file a debian architecture.
@@ -217,9 +219,9 @@ class PackageStatistics:
 
         return file_count
 
-    def _print_top_packages(
+    def _find_top_packages(
         self, stats: dict[str, int], top_k: int | None
-    ) -> None:
+    ) -> list[tuple[str, int]]:
         """Finds the packages that have the most files associated with them.
 
         Processes a dictionary mapping each package to the number of files
@@ -269,6 +271,7 @@ class PackageStatistics:
             top_k = len(tuplist)
 
         # Extract the top K packages in O(K*log(N)) time.
+        packages = []
         for _ in range(0, top_k):
             if len(tuplist) == 0:
                 break
@@ -276,10 +279,19 @@ class PackageStatistics:
             top = heapq.heappop(tuplist)
             package = top[1]
             count = abs(top[0])
-            print(f"{package} : {count}")
+            packages.append((package, count))
+
+        return packages
 
 
 def main() -> None:
+    """Retrieves and prints the top K package for a given architecture.
+
+    Parses the arguments and validates that the target architecture is given
+    and represents a valid architecture. Instantiates a PackageStatistics class,
+    retrieves the `DEFAULT_TOP_K_PACKAGES` and prints them in a human-friendly
+    format.
+    """
     # Require that we have at least one ARCHITECTURE argument.
     # Note: excessive arguments are allowed, but ignored.
     if len(sys.argv) < 2:
@@ -291,7 +303,8 @@ def main() -> None:
         raise ValueError(invalid_architecture_error(architecture))
 
     stats = PackageStatistics(DEBIAN_MIRROR)
-    stats.get_top_packages(architecture, 10)
+    packages = stats.get_top_packages(architecture, DEFAULT_TOP_K_PACKAGES)
+    print(packages)
 
 
 if __name__ == "__main__":
