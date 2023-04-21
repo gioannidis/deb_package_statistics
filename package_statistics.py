@@ -269,7 +269,7 @@ class PackageStatistics:
             top_k = len(tuplist)
 
         # Extract the top K packages in O(K*log(N)) time.
-        for _ in range(1, top_k):
+        for _ in range(0, top_k):
             if len(tuplist) == 0:
                 break
 
