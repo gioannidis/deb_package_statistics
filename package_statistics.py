@@ -57,8 +57,8 @@ DEBIAN_MIRROR = "http://ftp.uk.debian.org/debian/dists/stable/main/"
 DOWNLOADS_FOLDER = "./downloads/"
 
 
-# Produces a generic usage message.
 def usage_message() -> str:
+    """Produces a generic usage message for this script."""
     return (
         f"Usage: {sys.argv[0]} ARCHITECTURE\n\n"
         f"Supported architectures: {' '.join(ARCHITECTURES)}"
@@ -77,120 +77,178 @@ def invalid_architecture_error(architecture: str) -> str:
         + usage_message()
     )
 
-
-# Downloads the contents file for the given architecture, unless it has been
-# already downloaded, and returns the filepath of the downloaded file.
-def maybe_download_contents(architecture: str) -> str:
-    # Create the downloads folder if it doesn't exist.
-    if not os.path.isdir(DOWNLOADS_FOLDER):
-        os.makedirs(DOWNLOADS_FOLDER)
-
-    filename = f"Contents-{architecture}.gz"
-    filepath = f"{DOWNLOADS_FOLDER}/{filename}"
-
-    # Skip downloading the file if it already exists.
-    if os.path.isfile(filepath):
-        return filepath
-
-    # Download as a stream and save it to persistent storage.
-    url = f"{DEBIAN_MIRROR}/{filename}"
-    response = requests.get(url, stream=True, timeout=60)
-    with open(filepath, "wb") as f:
-        f.write(response.raw.read())
-
-    return filepath
-
-
 # Decompresses a .gz file and returns its contents as a string
 def decompress_gz(filepath: str) -> str:
     with gzip.open(filepath, "rt") as f:
         return f.read()
 
 
-# Gets the package list from a contents line.
-def get_packages(line: str) -> list[str]:
-    # Reminder: each line in the contents file has the following format:
-    #     file_name [multiple spaces] package_1,package_2,package_3,...,package_N
-    #
-    # File names may contain spaces. The package list, which is a list of packages
-    # separated by commas, is guaranteed to contain no spaces.
+class PackageStatistics:
+    """Computes debian package statistics for various architectures.
 
-    # Find the last space or tab in the line and return the suffix. We use this
-    # approach because file names may contain spaces, thus breaking the
-    # standard split() method.
-    last_space_index = find_last_of(line, " \t")
+    Provides an API to download the contents index of debian packages for a
+    given architecture, compute the number of files associated with each
+    package, and print the packages that have the most files associated with
+    them.
 
-    # Handle malformed lines, where there is no 2nd column.
-    if last_space_index < 0:
-        raise ValueError(f"Malformed line in Contents file: {line}")
+    Attributes:
+        _mirror: A string of the debian mirror URL to download the contents.
 
-    # Isolate the package list.
-    packages = line[last_space_index + 1 :]
+    """
 
-    # Tokenize the line by commas, which separate packages.
-    return packages.split(",")
+    def __init__(self, mirror: str):
+        """Initializes the instance based on the debian mirror.
+
+        Args:
+            mirror: the URL of the debian mirror to download the contents from.
+        """
+        self._mirror = mirror
+
+    def get_top_packages(self, architecture: str, top_k: int|None = None) -> None:
+
+        filepath = self._maybe_download_contents(architecture)
+        contents = decompress_gz(filepath)
+
+        file_count = self._count_files_per_package(contents)
+        self._print_top_packages(file_count)
+
+    def _maybe_download_contents(self, architecture: str) -> str:
+        """Downloads the contents file a debian architecture.
+
+        Connects to the `_mirror` and downloads the compressed contents file
+        for the given architecture. already downloaded, and returns the filepath
+        of the downloaded file. Saves the downloaded to the `DOWNLOADS_FOLDER`
+        and creates the folder if it doesn't exist.
+
+        The method skips downloading the contents file if it already exists.
+
+        Args:
+            architecture: A string indicating the architecture.
+
+        Returns:
+            A string pointing to the pathname of the downloaded compressed
+            contents file. Example:
+
+            /path/to/Contents-amd64.gz
+
+        Raises:
+            ConnectionError: the connection to the mirror was not possible.
+        """
+        if not os.path.isdir(DOWNLOADS_FOLDER):
+            os.makedirs(DOWNLOADS_FOLDER)
+
+        filename = f"Contents-{architecture}.gz"
+        filepath = f"{DOWNLOADS_FOLDER}/{filename}"
+
+        # Skip downloading the file if it already exists.
+        if os.path.isfile(filepath):
+            return filepath
+
+        url = f"{DEBIAN_MIRROR}/{filename}"
+        response = requests.get(url, stream=True, timeout=60)
+        with open(filepath, "wb") as f:
+            f.write(response.raw.read())
+
+        return filepath
 
 
-# Returns a dictionary where the key represents a package and the value
-# represents the number of files associated with this package.
-# Input: the decompressed contents file.
-def count_files_per_package(contents: str) -> dict[str, int]:
-    file_count = {}
+    def _get_packages(self, line: str) -> list[str]:
+        """Parses a row from a Contents file and retrieves a list of packages.
 
-    # Split the file into lines, where each line represents a package.
-    lines = contents.splitlines()
+        Each line in the contents file has the following format:
+            file_name     package_1,package_2,package_3,...,package_N
 
-    # Process each line, updating the file counts for each package associated with
-    # each file.
-    for line in lines:
-        packages = get_packages(line)
+        File names may contain spaces. The package list, which is a comma
+        separated list of packages, is guaranteed to contain no spaces.
 
-        # Increment the file counter of this package.
-        for package in packages:
-            if package in file_count:
-                file_count[package] = file_count[package] + 1
-            else:
-                file_count[package] = 1
+        This method finds the last space or tab in the line, tokenizes the
+        comma separted packages, and returns the packages as a list.
 
-    return file_count
+        Args:
+            line: A string representing a line row from a Contents file of a
+                Debian architecture. Example:
+
+                /path/to/a/file         package_1,package_2,package_3
+
+        Returns:
+            A list of strings representing debian packages. Example:
+                ["package_1", "package_2", "package_3"]
+        """
+        last_space_index = find_last_of(line, " \t")
+
+        # Handle malformed lines, where there is no 2nd column.
+        if last_space_index < 0:
+            raise ValueError(f"Malformed line in Contents file: {line}")
+
+        packages = line[last_space_index + 1 :]
+        return packages.split(",")
 
 
-# Prints the top K packages from the `stats` dictionary, based on how many files
-# each package is associated with. Each dictionary represents a {k, v} value,
-# where k = package name, v = number of files the package is associated with.
-#
-# If `K` is `None`, then all packages are printed, sorted by descending order
-# based on their associated file counts.
-#
-# Time Complexity: O(N + K*log(N)) where N = number of packages.
-# Space Complexity: O(N) for auxilliary memory.
-#
-# Note: if K is constant and K << N, e.g., K = 10, then this essentially runs
-# in O(N) time.
-def print_top_packages(stats: dict[str, int], top_k: int | None = 10) -> None:
-    # Create a tuple list from the given dictionary, in order to create a heap.
-    # Since `heapify` creates a min heap, use the negative values of file counts
-    # so that we end up with an equivalent max heap.
-    tuplist = [(-v, k) for k, v in stats.items()]
+    def _count_files_per_package(self, contents: str) -> dict[str, int]:
+        """Counts the files associated with each package in a Contents file.
 
-    # Make a max heap out of the tuples based on the number of files associated
-    # with each package. This takes O(N) time, where N = number of packages.
-    heapq.heapify(tuplist)
+        Returns a dictionary where the key represents a package and the value
+        represents the number of files associated with this package.
+        Input: the decompressed contents file.
+        """
+        file_count = {}
 
-    # Print all packages if no K has been specified.
-    if top_k is None:
-        top_k = len(tuplist)
+        # Split the file into lines, where each line represents a package.
+        lines = contents.splitlines()
 
-    # Print the top K packages in O(K*log(N)) time.
-    for i in range(1, top_k):
-        if len(tuplist) == 0:
-            break
+        # Process each line, updating the file counts for each package associated with
+        # each file.
+        for line in lines:
+            packages = self._get_packages(line)
 
-        # Remove the top element in O(log(N)) time and print it.
-        top = heapq.heappop(tuplist)
-        package = top[1]
-        count = abs(top[0])
-        print(f"{package} : {count}")
+            # Increment the file counter of this package.
+            for package in packages:
+                if package in file_count:
+                    file_count[package] = file_count[package] + 1
+                else:
+                    file_count[package] = 1
+
+        return file_count
+
+
+    def _print_top_packages(self, stats: dict[str, int], top_k: int | None = 10) -> None:
+        """
+        Prints the top K packages from the `stats` dictionary, based on how many files
+        each package is associated with. Each dictionary represents a {k, v} value,
+        where k = package name, v = number of files the package is associated with.
+
+        If `K` is `None`, then all packages are printed, sorted by descending order
+        based on their associated file counts.
+
+        Time Complexity: O(N + K*log(N)) where N = number of packages.
+        Space Complexity: O(N) for auxilliary memory.
+
+        Note: if K is constant and K << N, e.g., K = 10, then this essentially runs
+        in O(N) time.
+        """
+        # Create a tuple list from the given dictionary, in order to create a heap.
+        # Since `heapify` creates a min heap, use the negative values of file counts
+        # so that we end up with an equivalent max heap.
+        tuplist = [(-v, k) for k, v in stats.items()]
+
+        # Make a max heap out of the tuples based on the number of files associated
+        # with each package. This takes O(N) time, where N = number of packages.
+        heapq.heapify(tuplist)
+
+        # Print all packages if no K has been specified.
+        if top_k is None:
+            top_k = len(tuplist)
+
+        # Print the top K packages in O(K*log(N)) time.
+        for i in range(1, top_k):
+            if len(tuplist) == 0:
+                break
+
+            # Remove the top element in O(log(N)) time and print it.
+            top = heapq.heappop(tuplist)
+            package = top[1]
+            count = abs(top[0])
+            print(f"{package} : {count}")
 
 
 def main() -> None:
@@ -204,12 +262,9 @@ def main() -> None:
     if architecture not in ARCHITECTURES:
         raise ValueError(invalid_architecture_error(architecture))
 
-    filepath = maybe_download_contents(architecture)
-    contents = decompress_gz(filepath)
 
-    file_count = count_files_per_package(contents)
-
-    print_top_packages(file_count)
+    stats = PackageStatistics(DEBIAN_MIRROR)
+    stats.get_top_packages(architecture, 10)
 
 
 if __name__ == "__main__":
