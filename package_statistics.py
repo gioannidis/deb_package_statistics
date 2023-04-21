@@ -23,6 +23,8 @@ import os
 import requests
 import sys
 
+from strings import find_last_of
+
 # Defines the supported architectures.
 ARCHITECTURES = dict.fromkeys([
     "all",
@@ -103,31 +105,6 @@ def maybe_download_contents(architecture: str) -> str:
 def decompress_gz(filepath: str) -> str:
     with gzip.open(filepath, "rt") as f:
         return f.read()
-
-
-# Finds the last occurrence of any one of the characters in `chars` within
-# `text` and returns its index. Returns -1 if no matches are found.
-def find_last_of(text: str, chars: str) -> int:
-    # Create a dictionary from the characters that we are looking to match.
-    char_dict = dict.fromkeys(chars)
-
-    # Define the predicate to filter for matching characters.
-    def predicate(char: str) -> bool:
-        return char in char_dict
-
-    # Reverse the string, so that we find the last occurrence.
-    text = text[::-1]
-
-    # Find the first occurrence in the reversed text and return -1 if not found.
-    index = next((i for i, ch in enumerate(text) if predicate(ch)), None)
-
-    # Handle case where no match is found.
-    if index is None:
-        return -1
-
-    # Return the index corresponding to the original string, i.e., the last
-    # matching index.
-    return len(text) - index - 1
 
 
 # Gets the package list from a contents line.
