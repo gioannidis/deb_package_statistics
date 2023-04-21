@@ -17,8 +17,8 @@
 """
 Displays deb package statistics for various architectures.
 """
-import heapq
 import gzip
+import heapq
 import os
 import requests
 import sys
