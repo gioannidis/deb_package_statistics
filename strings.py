@@ -19,23 +19,36 @@ Provides string-related algorithms.
 """
 
 
-# Finds the last occurrence of any one of the characters in `chars` within
-# `text` and returns its index. Returns -1 if no matches are found.
-def find_last_of(text: str, chars: str) -> int:
-    # Create a dictionary from the characters that we are looking to match.
-    char_dict = dict.fromkeys(chars)
+def find_last_of(text: str, pattern: str) -> int:
+    """Finds the last occurrence of a character from a pattern in a given text.
 
-    # Define the predicate to filter for matching characters.
+    Finds and returns the last position in `text` that represents any one
+    character from the given `patter`.
+
+    This is implemented by reversing the original string, as finding the last
+    occurrence in the original string is equivalent to finding the first
+    occurrence in the reversed string.
+
+    Args:
+        text: A string where the last matching character is being searched for.
+        pattern: A series of characters used as search patterns.
+
+    Returns:
+        An integer representing the index in `text` where the last match from
+        `pattern` is found. Returns -1 if no match is found.
+    """
+    char_dict = dict.fromkeys(pattern)
+
     def predicate(char: str) -> bool:
+        """Filters matching characters in the given pattern."""
         return char in char_dict
 
-    # Reverse the string, so that we find the last occurrence.
     text = text[::-1]
 
-    # Find the first occurrence in the reversed text and return -1 if not found.
+    # NOTE: we specify to return `None` in case of no match, so that no
+    # exception is raised.
     index = next((i for i, ch in enumerate(text) if predicate(ch)), None)
 
-    # Handle case where no match is found.
     if index is None:
         return -1
 
