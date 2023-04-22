@@ -59,6 +59,7 @@ DEFAULT_TOP_K_PACKAGES = 10
 # Defines the folder to store the downloaded files.
 DOWNLOADS_FOLDER = "./downloads/"
 
+
 def usage_message() -> str:
     """Produces a generic usage message for this script."""
     return (
@@ -304,7 +305,17 @@ def main() -> None:
 
     stats = PackageStatistics(DEBIAN_MIRROR)
     packages = stats.get_top_packages(architecture, DEFAULT_TOP_K_PACKAGES)
-    print(packages)
+
+    # Print the packages in a human readable format.
+    hline = "-" * 50
+    print(hline)
+    print(f"{'#': ^3} {'Package': <41}{'Files': <5}")
+    print(hline)
+    for i, tup in enumerate(packages):
+        package, count = tup
+        print(f"{i+1: >2}. {package: <41}{count: >5}")
+
+    print(hline)
 
 
 if __name__ == "__main__":
