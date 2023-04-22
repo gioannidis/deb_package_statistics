@@ -1,4 +1,5 @@
 # deb_package_statistics
+
 Python command line tool that displays deb package statistics for various
 architectures.
 
@@ -42,7 +43,7 @@ Development tools that were used for this project include:
 
 ## Allocated Time
 
-About 9 hours were allocated to this project in its entirety. This allocated
+About 12 hours were allocated to this project in its entirety. This allocated
 time was used to:
 
 - Gather requirements, reach out to the company for clarifications, and make
@@ -51,7 +52,12 @@ time was used to:
   auto-formatter and the static code analyzer.
 - Read and understand the [contents file format][contents] and design the
   core functionality of the tool.
+- Implement the core functionality of the code.
+- Refactor the code for readability across different classes and/or modules.
 - Optimize the time complexity to find the top `K` packages.
+- Provide documentation as module, function, or class docstrings.
+- Write explanatory inline comments to illustrate the rationale be hind the
+  implementation decisions.
 
 [contents]: https://wiki.debian.org/RepositoryFormat#A.22Contents.22_indices
 [pyink]: https://github.com/google/pyink
