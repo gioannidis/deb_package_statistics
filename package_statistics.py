@@ -15,7 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Displays deb package statistics for various architectures.
+Displays the debian packages with the most associated files for an architecture.
+
+Downloads the Contents file for a given architecture or the "source"
+pseudo-architecture, computes the packages that have the most files associated
+with them, and returns the top 10 packages. Users can optionally change the
+number of the top packages to print.
+
+Example usages:
+    ./package_statistics.py amd64
+        Prints the top 10 packages for the amd64 architecture.
+
+    ./package_statistics.py i386 42
+        Prints the top 42 packages for the i386 architecture.
 """
 import gzip
 import heapq
@@ -65,8 +77,8 @@ def usage_message() -> str:
     return (
         f"Usage: {sys.argv[0]} <architecture> [top_k]\n\n"
         f"Supported architectures: {' '.join(ARCHITECTURES)}\n"
-        "top_k: number of top K packages to print; "
-        "if zero (0), prints all packages"
+        "top_k: number of top K packages to print "
+        f"(default: {DEFAULT_TOP_K_PACKAGES}); if zero (0), prints all packages"
     )
 
 
@@ -99,7 +111,6 @@ class PackageStatistics:
 
     Attributes:
         _mirror: A string of the debian mirror URL to download the contents.
-
     """
 
     def __init__(self, mirror: str):
