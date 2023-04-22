@@ -63,8 +63,10 @@ DOWNLOADS_FOLDER = "./downloads/"
 def usage_message() -> str:
     """Produces a generic usage message for this script."""
     return (
-        f"Usage: {sys.argv[0]} ARCHITECTURE\n\n"
-        f"Supported architectures: {' '.join(ARCHITECTURES)}"
+        f"Usage: {sys.argv[0]} <architecture> [top_k]\n\n"
+        f"Supported architectures: {' '.join(ARCHITECTURES)}\n"
+        "top_k: number of top K packages to print; "
+        "if zero (0), prints all packages"
     )
 
 
@@ -323,8 +325,19 @@ def main() -> None:
     if architecture not in ARCHITECTURES:
         raise ValueError(invalid_architecture_error(architecture))
 
+    # Check whether an optional second argument has been given, indicating the
+    # number of top K packages to print.
+    top_k = DEFAULT_TOP_K_PACKAGES
+    if len(sys.argv) >= 3:
+        top_k = int(sys.argv[2])
+        if top_k < 0:
+            raise ValueError(f"top_k argument must be non-negative: {top_k}")
+        elif top_k == 0:
+            # Set it to None, indicating that all packages should be printed.
+            top_k = None
+
     stats = PackageStatistics(DEBIAN_MIRROR)
-    packages = stats.get_top_packages(architecture, DEFAULT_TOP_K_PACKAGES)
+    packages = stats.get_top_packages(architecture, top_k)
 
     # Print the packages in a human readable format.
     hline = "-" * 50
