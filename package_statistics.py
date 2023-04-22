@@ -95,12 +95,6 @@ def invalid_architecture_error(architecture: str) -> str:
     )
 
 
-def decompress_gz(filepath: str) -> str:
-    """Decompresses a .gz file and returns its contents as a string."""
-    with gzip.open(filepath, "rt") as f:
-        return f.read()
-
-
 class PackageStatistics:
     """Computes debian package statistics for various architectures.
 
@@ -156,10 +150,15 @@ class PackageStatistics:
             files, i.e., their second element.
         """
         filepath = self._maybe_download_contents(architecture)
-        contents = decompress_gz(filepath)
+        contents = self._decompress_gz(filepath)
 
         file_count = self._count_files_per_package(contents)
         return self._find_top_packages(file_count, top_k)
+
+    def _decompress_gz(self, filepath: str) -> str:
+        """Decompresses a .gz file and returns its contents as a string."""
+        with gzip.open(filepath, "rt") as f:
+            return f.read()
 
     def _maybe_download_contents(self, architecture: str) -> str:
         """Downloads the contents file a debian architecture.
