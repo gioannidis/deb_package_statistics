@@ -111,15 +111,20 @@ class PackageStatistics:
 
     Attributes:
         _mirror: A string of the debian mirror URL to download the contents.
+        _path: A string representing the path where the contents files are
+            saved at.
     """
 
-    def __init__(self, mirror: str):
+    def __init__(self, mirror: str, path: str):
         """Initializes the instance based on the debian mirror.
 
         Args:
             mirror: the URL of the debian mirror to download the contents from.
+            _path: A string representing the path where the contents files are
+                saved at.
         """
         self._mirror = mirror
+        self._path = path
 
     def get_top_packages(
         self, architecture: str, top_k: int | None = None
@@ -161,8 +166,8 @@ class PackageStatistics:
 
         Connects to the `_mirror` and downloads the compressed contents file
         for the given architecture. already downloaded, and returns the filepath
-        of the downloaded file. Saves the downloaded to the `DOWNLOADS_FOLDER`
-        and creates the folder if it doesn't exist.
+        of the downloaded file. Saves the downloaded to the `_path` and creates
+        the folder if it doesn't exist.
 
         The method skips downloading the contents file if it already exists.
 
@@ -178,11 +183,11 @@ class PackageStatistics:
         Raises:
             ConnectionError: the connection to the mirror was not possible.
         """
-        if not os.path.isdir(DOWNLOADS_FOLDER):
-            os.makedirs(DOWNLOADS_FOLDER)
+        if not os.path.isdir(self._path):
+            os.makedirs(self._path)
 
         filename = f"Contents-{architecture}.gz"
-        filepath = f"{DOWNLOADS_FOLDER}/{filename}"
+        filepath = f"{self._path}/{filename}"
 
         # Skip downloading the file if it already exists.
         if os.path.isfile(filepath):
@@ -347,7 +352,7 @@ def main() -> None:
             # Set it to None, indicating that all packages should be printed.
             top_k = None
 
-    stats = PackageStatistics(DEBIAN_MIRROR)
+    stats = PackageStatistics(DEBIAN_MIRROR, DOWNLOADS_FOLDER)
     packages = stats.get_top_packages(architecture, top_k)
 
     # Print the packages in a human readable format.
