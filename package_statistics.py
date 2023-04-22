@@ -111,6 +111,32 @@ class PackageStatistics:
     def get_top_packages(
         self, architecture: str, top_k: int | None = None
     ) -> list[tuple[str, int]]:
+        """Finds the packages that have the most files associated with them.
+
+        Retrieves the debian Contents file for a given architecture and returns
+        the top K packages based on the number of files associated with them.
+
+        Time Complexity: O(N + K*log(N)), where:
+            N = number of packages, i.e., the size of the `stats` dictionary
+            K = the `top_k` argument. If K is None or K > N, then K = N.
+        Space Complexity: O(N) for auxiliary memory.
+
+        Note: if K is constant and K << N, e.g., K = 10, then this method runs
+        essentially in O(N) time.
+
+        Args:
+            architecture: A string representing the target architecture.
+
+            top_k: An integer or None. If set, it limits the number of the top
+                K packages to be retrieved. If None, all packages are returned.
+
+        Returns:
+            A list of (str, int) tuples, where the first element is a string
+            representing a package and the second element is an integer
+            representing the number of files associated with the package. The
+            tuples are sorted in descending order by the number of associated
+            files, i.e., their second element.
+        """
         filepath = self._maybe_download_contents(architecture)
         contents = decompress_gz(filepath)
 
@@ -166,7 +192,7 @@ class PackageStatistics:
         separated list of packages, is guaranteed to contain no spaces.
 
         This method finds the last space or tab in the line, tokenizes the
-        comma separted packages, and returns the packages as a list.
+        comma separated packages, and returns the packages as a list.
 
         Args:
             line: A string representing a line row from a Contents file of a
@@ -194,7 +220,7 @@ class PackageStatistics:
         the number of files that each package is associated with. Each line in
         the file represents a single file that can be associated with multiple
         packages. The contents are tokenized by lines and each line is processed
-        separtely.
+        separately.
 
         Args:
             contents: A string representing the decompressed contents file.
@@ -233,13 +259,8 @@ class PackageStatistics:
         The partial sort is implemented by creating a heap from the dictionary
         in linear time and then extracting the top K elements.
 
-        Time Complexity: O(N + K*log(N)), where:
-            N = number of packages, i.e., the size of the `stats` dictionary
-            K = the `top_k` argument. If K is None or K > N, then K = N.
-        Space Complexity: O(N) for auxilliary memory.
-
-        Note: if K is constant and K << N, e.g., K = 10, then this method runs
-        essentially in O(N) time.
+        Refer to the documentation of `get_top_packages` for the time and space
+        complexity.
 
         Args:
             stats: A dictionary mapping a string to an integer.
@@ -247,15 +268,14 @@ class PackageStatistics:
                 value: An integer representing the number of files associated
                     with the package.
 
-            top_k: An integer or None. If set, it limits the number of the top
-                K packages to be retrieved. If None, all packages are returned.
+            top_k: An integer or None, representing the top packages to
+                retrieve. Refer to the documentation of `get_top_packages` for
+                more details.
 
         Returns:
-            A list of (str, int) tuples, where the first element is a string
-            representing a package and the second element is an integer
-            representing the number of files associated with the package. The
-            tuples are sorted in descending order by the number of associated
-            files, i.e., their second element.
+            A list of (str, int) tuples, representing packages and number of
+            files associated with them. Refer to the documentation of
+            `get_top_packages` for more details.
         """
         # Create a tuple list that will be used as the max heap elements. Place
         # the dictionary value as the first element so that the heap uses this
