@@ -73,7 +73,7 @@ DOWNLOADS_FOLDER = "./downloads/"
 
 
 def usage_message() -> str:
-    """Produces a generic usage message for this script."""
+    """Produces a generic usage message for this executable."""
     return (
         f"Usage: {sys.argv[0]} <architecture> [top_k]\n\n"
         f"Supported architectures: {' '.join(ARCHITECTURES)}\n"
@@ -82,21 +82,21 @@ def usage_message() -> str:
     )
 
 
-# Produces an error message in case the architecture argument is missing.
 def missing_architecture_error() -> str:
+    """Produces an error message for a missing architecture argument."""
     return "Missing architecture argument.\n" + usage_message()
 
 
-# Produces an error message in case of an invalid or unsupported architecture.
 def invalid_architecture_error(architecture: str) -> str:
+    """Produces an error message for an invalid or unsupported architecture."""
     return (
         f"Invalid or unsupported architecture: {architecture}\n"
         + usage_message()
     )
 
 
-# Decompresses a .gz file and returns its contents as a string
 def decompress_gz(filepath: str) -> str:
+    """Decompresses a .gz file and returns its contents as a string."""
     with gzip.open(filepath, "rt") as f:
         return f.read()
 
