@@ -1,0 +1,9 @@
+FILE                                                    LOCATION
+file1                                                   packageA
+/path/to/file                                           packageA
+/path/to/file/with/two/packages                         packageA,packageB
+/path/to/file/with/multiple/packages                    packageA,packageC,packageB
+/path/to/file with spaces in filename                   packageC,packageA
+file/separated/by/tabs																	packageC,packageB
+file/separated/by/spaces/and/tabs/at/the/end      			packageB,packageD
+file/separated/by/tabs/and/spaces/at/the/end			      packageD,packageE
