@@ -34,6 +34,12 @@ http://ftp.uk.debian.org/debian/dists/stable/main/. Please try to follow
 Python's best practices in your solution. Hint: there are tools that can help
 you verify your code is compliant. In-line comments are appreciated.
 
+## Requirements Elicitation
+
+Prior to designing and implementing this project, we researched the requirements
+of the system, the stakeholders, and any potential users. Please refer to the
+[requirements][requirements] section for more details.
+
 ## Development Tools
 
 Development tools that were used for this project include:
@@ -62,3 +68,4 @@ time was used to:
 [contents]: https://wiki.debian.org/RepositoryFormat#A.22Contents.22_indices
 [pyink]: https://github.com/google/pyink
 [pylint]: https://pypi.org/project/pylint
+[requirements]: docs/requirements.md
