@@ -239,6 +239,9 @@ class PackageStatistics:
         packages. The contents are tokenized by lines and each line is processed
         separately.
 
+        This also ignores a potential header line, where the first line can
+        optionally contain the columns "FILE" and "LOCATION".
+
         Args:
             contents: A string representing the decompressed contents file.
 
@@ -253,8 +256,18 @@ class PackageStatistics:
 
         # Retrieve the package list that each file (line) is associated with and
         # increment the counter of each associated package.
-        for line in lines:
+        for i, line in enumerate(lines):
             packages = self._get_packages(line)
+
+            # Ignore the first line if it is a header line.
+            if (
+                i == 0
+                and len(packages) == 1
+                and packages[0] == "LOCATION"
+                and line.find("FILE") >= 0
+            ):
+                continue
+
             for package in packages:
                 if package in file_count:
                     file_count[package] = file_count[package] + 1
