@@ -80,6 +80,11 @@ derive any relationship between `M` and `N`.
 
 Therefore, this tool has `O(M + N)` space complexity requirements.
 
+## Documentation
+
+All APIs have been documented with docstrings. Please run
+`pydoc3 package_statistics` to view the public API documentation for this tool.
+
 ## Development Tools
 
 Development tools that were used for this project include:
