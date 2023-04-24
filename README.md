@@ -14,7 +14,7 @@ descending order based on the number of associated filenames.
 This repository implements a technical assessment that has been given for the
 purposes of a recruitment process in order to illustrate various aspects of our
 work as a Software Engineer, e.g., design, implementation, testing, and
-documemtation.
+documentation.
 
 The [instructions](#original-instructions) section describes the original
 instructions that were shared by the company for the purposes of this
@@ -88,9 +88,9 @@ you verify your code is compliant. In-line comments are appreciated.
 
 ## Requirements Elicitation
 
-Prior to designing and implementing this project, we researched the requirements
-of the system, the stakeholders, and any potential users. Please refer to the
-[requirements][requirements] section for more details.
+Prior to designing and implementing this assessment, we researched the
+requirements of the system, the stakeholders, and any potential users. Please
+refer to the [requirements][requirements] section for more details.
 
 ## Performance
 
@@ -142,13 +142,14 @@ All APIs have been documented with docstrings. Please run
 
 ## Development Tools
 
-Development tools that were used for this project include:
+Development tools that were used for this assessment include:
 
 - The [Pyink][pyink] auto-formatter.
 - The [Pylint][pylint] static code analyzer.
+- [Grip][grip] for instant view of markdown files on the local machine.
 
 The external [Google Style Guide for Python][google-python] has been followed
-in this project, so all tools have been tuned to enforce this style guide.
+in this assessment, so all tools have been tuned to enforce this style guide.
 
 ## Allocated Time
 
@@ -170,6 +171,7 @@ time was used to:
 
 [contents]: https://wiki.debian.org/RepositoryFormat#A.22Contents.22_indices
 [google-python]: https://google.github.io/styleguide/pyguide.html
+[grip]: https://github.com/joeyespo/grip
 [gzip]: https://docs.python.org/3/library/gzip.html
 [heapq]: https://docs.python.org/3/library/heapq.html
 [pyink]: https://github.com/google/pyink
