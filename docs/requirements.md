@@ -144,8 +144,8 @@ Question: _How will this assessment be compensated?_
 Assumption: since no response was received within 14 days of sending the initial
 e-mail, this assessment is assumed to be unpaid and, therefore, implemented on a
 voluntary basis. Since no Non-disclosure agreement (NDA) had been signed prior
-to commencing this assessment, there are not any legal requirements or
-constraints for neither the interviewer nor the interviewee.
+to commencing this assessment, there are no legal requirements or constraints
+for either the interviewer or the interviewee.
 
 [readme]: ../README.md
 [requests]: https://pypi.org/project/requests/
