@@ -1,12 +1,24 @@
 # deb_package_statistics
 
-Python command line tool that displays deb package statistics for various
-architectures.
+Python command line tool that prints the debian packages with the most
+associated filenames.
+
+This tool downloads the Contents Indices file for a given architecture or the
+"source" pseudo-architecture, computes the packages that have the most filenames
+associated with them, and returns the top 10 packages. Users can optionally
+tune the number of the top packages to print. The packages are printed in
+descending order based on the number of associated filenames.
 
 ## Preface
 
-This repository implements a technical assessment for the purposes of a
-recruitment process.
+This repository implements a technical assessment that has been given for the
+purposes of a recruitment process in order to illustrate various aspects of our
+work as a Software Engineer, e.g., design, implementation, testing, and
+documemtation.
+
+The [instructions](#original-instructions) section describes the original
+instructions that were shared by the company for the purposes of this
+assessment.
 
 ## Requirements
 
