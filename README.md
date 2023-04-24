@@ -45,40 +45,43 @@ of the system, the stakeholders, and any potential users. Please refer to the
 ### Time Complexity
 
 The time complexity of this tool, excluding any network or decompression
-operations, is `O(M + N + K * log(N))`, where:
+operations, is `O(M*L + K*log(N))`, where:
 
-- `M` is the number of files in the decompressed `Contents-{architecture}.gz`
-  file, i.e., the number of individual lines.
-- `N` is the number of individual packages within the `Contents` file.
+- `M` is the number of filenames in the decompressed Contents indices file,
+    i.e., the number of individual lines.
+- `L` is the length of the longest line in the in the Contents indices file.
 - `K` is the number of the top packages that we would like to display, based on
-  the number of associated files.
-
-We achieve this time complexity by refraining from sorting all packages based
-on their respective associated file counts. Instead, we apply a partial sort via
-a heap by choosing only the top `K` packages.
+    the number of associated filenames.
+- `N` is the number of individual packages in the Contents indices file.
 
 In particular:
 
-- `O(M) + O(N)` time is required to process the entire file.
-- `O(N)` time is required to build a max heap of packages based on their
-  associated file counts.
+- `O(M * L)` time is required to process the entire `Contents` file.
 - `log(N)` time is required to pop the top package from the heap; we repeat this
   operation `K` times.
 
-If `K` is expected to be constant and `K << N`, e.g., `K = 10`, then the time
-complexity of this tool is essentially `O(M + N)`.
+Note that `O(N)` time is also required to build a max heap of packages based on
+their associated filename counts. However, we can easily illustrate that
+`N <= M*L`, since every package is mentioned at least once in the entire
+Contents indices file. Therefore, `O(M*L + N) = O(M*L)`.
 
-Note that one file may be associated with multiple packages and, conversely,
-multiple files may be associated with a single package. Therefore, we cannot
-derive any relationship between `M` and `N`.
+We achieve this time complexity by refraining from sorting all packages based
+on their respective associated filename counts. Instead, we apply a partial sort
+via a heap by choosing only the top `K` packages.
+
+If `K` is expected to be constant and `K << N`, e.g., `K = 10`, then the time
+complexity of this tool is essentially `O(M * L)`.
 
 ### Space Complexity
 
-- `O(M + N)` space is required to store the compressed file in persistent
-  storage and the decompressed file in volatile memory.
-- `O(N)` space is required to create a max-heap of packages.
+`O(M * L)` space is required to store the compressed file in persistent storage
+and the decompressed file in volatile memory. See the
+[Time Complexity](#time-complexity) section for an explanation of the notation.
 
-Therefore, this tool has `O(M + N)` space complexity requirements.
+Note that `O(N)` space is also required to create and maintain a max-heap of
+packages, as well as to produce the final output. However, as we illustrated in
+the [Time Complexity](#time-complexity) section, `N <= M*L`, therefore the
+`M*L` factor is the dominant one.
 
 ## Documentation
 
