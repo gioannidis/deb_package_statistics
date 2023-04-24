@@ -153,11 +153,11 @@ in this assessment, so all tools have been tuned to enforce this style guide.
 
 ## Allocated Time
 
-About 12 hours were allocated to this project in its entirety. This allocated
-time was used to:
+About 19.5 hours were allocated to this assessment in its entirety. This
+allocated time was used to:
 
-- Gather requirements, reach out to the company for clarifications, and make
-  assumptions.
+- Gather [requirements][requirements], reach out to the company for
+  clarifications, and make assumptions.
 - Conduct research on the style guide to follow and decide on the most suitable
   auto-formatter and the static code analyzer.
 - Read and understand the [contents file format][contents] and design the
@@ -165,9 +165,14 @@ time was used to:
 - Implement the core functionality of the code.
 - Refactor the code for readability across different classes and/or modules.
 - Optimize the time complexity to find the top `K` packages.
+- Set up the `unittest` framework, construct test data, and provide unit
+  test(s).
 - Provide documentation as module, function, or class docstrings.
-- Write explanatory inline comments to illustrate the rationale be hind the
+- Write explanatory inline comments to illustrate the rationale behind the
   implementation decisions.
+- Implement small features outside of the scope of the
+  [original instructions](#original-instructions), e.g., allow users tune the
+  `K` parameter.
 
 [contents]: https://wiki.debian.org/RepositoryFormat#A.22Contents.22_indices
 [google-python]: https://google.github.io/styleguide/pyguide.html
