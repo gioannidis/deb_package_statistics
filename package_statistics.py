@@ -20,7 +20,8 @@ Prints the deb packages with the most associated filenames for an architecture.
 Downloads the Contents Indices file for a given architecture or the "source"
 pseudo-architecture, computes the packages that have the most filenames
 associated with them, and returns the top 10 packages. Users can optionally
-tune the number of the top packages to print.
+tune the number of the top packages to print. The packages are printed in
+descending order based on the number of associated filenames.
 
 Example usages:
     ./package_statistics.py amd64
@@ -28,6 +29,9 @@ Example usages:
 
     ./package_statistics.py i386 42
         Prints the top 42 packages for the i386 architecture.
+
+    ./package_statistics.py source all
+        Prints all packages for the "source" pseudo-architecture.
 """
 import gzip
 import heapq
@@ -62,6 +66,9 @@ ARCHITECTURES = dict.fromkeys([
     "udeb-s390x",
 ])
 
+# Defines the command line argument to print all packages.
+ARGUMENT_ALL_PACKAGES = "all"
+
 # Defines the debian mirror to use.
 DEBIAN_MIRROR = "http://ftp.uk.debian.org/debian/dists/stable/main/"
 
@@ -76,9 +83,10 @@ def usage_message() -> str:
     """Produces a generic usage message for this executable."""
     return (
         f"Usage: {sys.argv[0]} <architecture> [top_k]\n\n"
-        f"Supported architectures: {' '.join(ARCHITECTURES)}\n"
+        f"Supported architectures: {' '.join(ARCHITECTURES)}\n\n"
         "top_k: number of top K packages to print "
-        f"(default: {DEFAULT_TOP_K_PACKAGES}); if zero (0), prints all packages"
+        f"(default: {DEFAULT_TOP_K_PACKAGES}) or '{ARGUMENT_ALL_PACKAGES}' to "
+        "print all packages"
     )
 
 
@@ -369,6 +377,44 @@ class PackageStatistics:
         return packages
 
 
+def process_top_k_argument(arg: str) -> int | None:
+    """Processes the optional `top_k` argument from the command line.
+
+    Arguments:
+        arg: A string from the command line that can be converted to a positive
+            integer, representing how many top K packages should be printed.
+            Optionally, the string can also be equal to ARGUMENT_ALL_PACKAGES,
+            indicating that all packages should be printed.
+
+    Returns:
+        An integer representing the number K of the top packages that should be
+        printed, or `None` if the `arg` is equal to ARGUMENT_ALL_PACKAGES.
+
+    Raises:
+        ValueError if `arg` is neither equal to ARGUMENT_ALL_PACKAGES nor it can
+        be converted to a positive integer.
+    """
+    if arg == ARGUMENT_ALL_PACKAGES:
+        return None
+
+    error_msg = (
+        "top_k argument must be positive or equal to "
+        f"'{ARGUMENT_ALL_PACKAGES}': {arg}"
+    )
+
+    # Raise a custom error message to indicate the valid values. This is useful
+    # to catch typos, e.g., the user typed "ALL" instead of "all".
+    try:
+        top_k = int(arg)
+    except ValueError as exc:
+        raise ValueError(error_msg) from exc
+
+    if top_k <= 0:
+        raise ValueError(error_msg)
+
+    return top_k
+
+
 def main() -> None:
     """Retrieves and prints the top K package for a given architecture.
 
@@ -391,12 +437,7 @@ def main() -> None:
     # number of top K packages to print.
     top_k = DEFAULT_TOP_K_PACKAGES
     if len(sys.argv) >= 3:
-        top_k = int(sys.argv[2])
-        if top_k < 0:
-            raise ValueError(f"top_k argument must be non-negative: {top_k}")
-        elif top_k == 0:
-            # Set it to None, indicating that all packages should be printed.
-            top_k = None
+        top_k = process_top_k_argument(sys.argv[2])
 
     stats = PackageStatistics(DEBIAN_MIRROR, DOWNLOADS_FOLDER)
     packages = stats.get_top_packages(architecture, top_k)
