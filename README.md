@@ -147,6 +147,9 @@ Development tools that were used for this project include:
 - The [Pyink][pyink] auto-formatter.
 - The [Pylint][pylint] static code analyzer.
 
+The external [Google Style Guide for Python][google-python] has been followed
+in this project, so all tools have been tuned to enforce this style guide.
+
 ## Allocated Time
 
 About 12 hours were allocated to this project in its entirety. This allocated
@@ -166,6 +169,7 @@ time was used to:
   implementation decisions.
 
 [contents]: https://wiki.debian.org/RepositoryFormat#A.22Contents.22_indices
+[google-python]: https://google.github.io/styleguide/pyguide.html
 [gzip]: https://docs.python.org/3/library/gzip.html
 [heapq]: https://docs.python.org/3/library/heapq.html
 [pyink]: https://github.com/google/pyink
