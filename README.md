@@ -8,7 +8,14 @@ architectures.
 This repository implements a technical assessment for the purposes of a
 recruitment process.
 
-## Instructions
+## Requirements
+
+- `python3.7` or higher. This was tested under version `3.11.2`.
+- [`gzip`][gzip]
+- [`heapq`][heapq]
+- [`requests`][requests] version [`v2.28.0`][requests-version] or higher.
+
+## Original Instructions
 
 Debian uses `*deb` packages to deploy and upgrade software. The packages are
 stored in repositories and each repository contains the so called "Contents
@@ -114,6 +121,10 @@ time was used to:
   implementation decisions.
 
 [contents]: https://wiki.debian.org/RepositoryFormat#A.22Contents.22_indices
+[gzip]: https://docs.python.org/3/library/gzip.html
+[heapq]: https://docs.python.org/3/library/heapq.html
 [pyink]: https://github.com/google/pyink
 [pylint]: https://pypi.org/project/pylint
+[requests]: https://pypi.org/project/requests/
+[requests-version]: https://github.com/psf/requests/releases/tag/v2.28.0
 [requirements]: docs/requirements.md
