@@ -15,6 +15,39 @@ recruitment process.
 - [`heapq`][heapq]
 - [`requests`][requests] version [`v2.28.0`][requests-version] or higher.
 
+## Usage
+
+```
+./package_statistics.py <architecture> [top_k]
+```
+
+The `architecture` argument can be any one of the following supported (as of
+2023-04-25) architectures:
+
+```
+all amd64 arm64 armel armhf i386 mips64el mipsel ppc64el s390x source udeb-all udeb-amd64 udeb-arm64 udeb-armel udeb-armhf udeb-i386 udeb-mips64el udeb-mipsel udeb-ppc64el udeb-s390x
+```
+
+The `top_k` _optional_ argument can either be:
+
+- A positive integer `K`, indicating the number of top packages that should be
+  printed, based on the number of associated filenames from the respective
+  Contents Indices file.
+- `all`, indicating that all packages should be printed
+
+Example usages:
+
+```
+./package_statistics.py amd64
+    Prints the top 10 packages for the amd64 architecture.
+
+./package_statistics.py i386 42
+    Prints the top 42 packages for the i386 architecture.
+
+./package_statistics.py source all
+    Prints all packages for the "source" pseudo-architecture.
+```
+
 ## Original Instructions
 
 Debian uses `*deb` packages to deploy and upgrade software. The packages are
