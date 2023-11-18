@@ -53,6 +53,8 @@ class PackageStatisticsTest(unittest.TestCase):
         # When: the packages for a test architecture are requested.
         packages = self.package_statistics.get_top_packages(architecture="test")
 
+        # Then: each package is mapped to the number of associated files, and
+        # packages are sorted by the number of files, in descending order.
         self.assertListEqual(packages, self.expected)
 
         mock_download.assert_called_once()
