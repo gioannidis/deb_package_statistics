@@ -11,10 +11,13 @@ descending order based on the number of associated filenames.
 
 ## Preface
 
-This repository implements a technical assessment that has been given for the
-purposes of a recruitment process in order to illustrate various aspects of our
-work as a Software Engineer, e.g., design, implementation, testing, and
-documentation.
+This repository implements a technical assessment that had been requested by a
+renowned company in the IT and embedded sector, for the purposes of their
+recruitment process. We share this repository to illustrate various aspects of
+our work as a Software Engineer, e.g., requirements elicitation, design
+implementation, testing, and documentation. The assessment was neither
+proprietary or [compensated][compensation], nor any NDA had been concluded, thus
+may be shared publicly.
 
 The [instructions](#original-instructions) section describes the original
 instructions that were shared by the company for the purposes of this
@@ -174,6 +177,7 @@ allocated time was used to:
   [original instructions](#original-instructions), e.g., allow users tune the
   `K` parameter.
 
+[compensation]: docs/requirements.md#compensation
 [contents]: https://wiki.debian.org/RepositoryFormat#A.22Contents.22_indices
 [google-python]: https://google.github.io/styleguide/pyguide.html
 [grip]: https://github.com/joeyespo/grip
