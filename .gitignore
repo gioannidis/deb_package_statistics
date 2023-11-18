@@ -128,5 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Swap files
+.*.swp
+
 # Project-Related: downloads folder
 downloads/
